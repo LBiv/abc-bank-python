@@ -1,13 +1,16 @@
-from nose.tools import assert_equals
+from nose.tools import assert_equals, assert_true
+import sys
 
-from account import Account, CHECKING, MAXI_SAVINGS, SAVINGS
-from bank import Bank
-from customer import Customer
+sys.path.append('../abcbank')
+
+from abcbank.account import *
+from abcbank.bank import Bank
+from abcbank.customer import Customer
 
 
 def test_customer_summary():
     bank = Bank()
-    john = Customer("John").openAccount(Account(CHECKING))
+    john = Customer("John").openAccount(CheckingAcc())
     bank.addCustomer(john)
     assert_equals(bank.customerSummary(),
                   "Customer Summary\n - John (1 account)")
@@ -15,24 +18,32 @@ def test_customer_summary():
 
 def test_checking_account():
     bank = Bank()
-    checkingAccount = Account(CHECKING)
+    checkingAccount = CheckingAcc()
     bill = Customer("Bill").openAccount(checkingAccount)
     bank.addCustomer(bill)
     checkingAccount.deposit(100.0)
-    assert_equals(bank.totalInterestPaid(), 0.1)
+    assert_equals(bank.totalYearlyInterest(), 0.1)
 
 
 def test_savings_account():
     bank = Bank()
-    checkingAccount = Account(SAVINGS)
-    bank.addCustomer(Customer("Bill").openAccount(checkingAccount))
-    checkingAccount.deposit(1500.0)
-    assert_equals(bank.totalInterestPaid(), 2.0)
+    savingsAccount = SavingsAcc()
+    bank.addCustomer(Customer("Bill").openAccount(savingsAccount))
+    savingsAccount.deposit(1500.0)
+    assert_equals(bank.totalYearlyInterest(), 2.0)
 
 
 def test_maxi_savings_account():
     bank = Bank()
-    checkingAccount = Account(MAXI_SAVINGS)
-    bank.addCustomer(Customer("Bill").openAccount(checkingAccount))
-    checkingAccount.deposit(3000.0)
-    assert_equals(bank.totalInterestPaid(), 170.0)
+    maxiAccount = MaxiSavingsAcc()
+    bank.addCustomer(Customer("Bill").openAccount(maxiAccount))
+    maxiAccount.deposit(3000.0)
+    assert_equals(bank.totalYearlyInterest(), 150.0)
+
+def test_maxi_savings_account():
+    bank = Bank()
+    maxiAccount = MaxiSavingsAcc()
+    bank.addCustomer(Customer("Bill").openAccount(maxiAccount))
+    maxiAccount.deposit(3100.0)
+    maxiAccount.withdraw(100.0)
+    assert_true(bank.totalYearlyInterest() < 150.0)

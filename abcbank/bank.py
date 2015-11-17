@@ -16,6 +16,13 @@ class Bank:
         for c in self.customers:
             total += c.totalInterestEarned()
         return total
+
+    def totalYearlyInterest(self):
+        total = 0
+        for c in self.customers:
+            total += c.customerYearlyInterest()
+        return total
+
     def getFirstCustomer(self):
         try:
             self.customers = None
